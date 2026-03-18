@@ -21,17 +21,6 @@ This is a backend system designed to enable live code execution within a Job Sim
 
 The API server will run at http://localhost:3000.
 
-## Requirement Verification / Assignment Checklist
-This project successfully fulfills the requirements from the Take-home Assignment:
-- ✓ **Live Code Session APIs**: `POST /code-sessions` and `PATCH /code-sessions/{session_id}` work exactly as defined.
-- ✓ **Execute Async**: `POST /code-sessions/{session_id}/run` adds jobs to BullMQ and returns immediately via an isolated API request.
-- ✓ **Result Polling**: `GET /executions/{execution_id}` correctly polls states `QUEUED` -> `RUNNING` -> `COMPLETED`/`FAILED`/`TIMEOUT` mapped to DB logic.
-- ✓ **Execution & Worker System**: Handled by BullMQ processing pool leveraging isolated container instantiation (Docker).
-- ✓ **Safety Constraints**: CPU & Memory isolation through Docker configuration. Time limits set to terminate infinite loops after 5s.
-- ✓ **Idempotency & Retries**: Queue checks existing db jobs natively. BullMQ natively respects defined Retry strategies (`backoff` exponent).
-- ✓ **Handle high concurrency (optional)**: Effectively managed using scalable asynchronous queuing mechanics (BullMQ) resolving the Optional target. Rest API isn't blocked.
-- ✓ **Fully Tested (Bonus)**: Both basic unit tests and detailed E2E (Simulating lifecycle, crash states, concurrency locks) are available to run against real containers.
-
 ## API Documentation
 
 ### 1. Code Sessions
