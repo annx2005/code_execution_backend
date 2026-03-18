@@ -1,0 +1,34 @@
+# Cache and build artifacts
+node_modules
+dist
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Git
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Environment
+.env*
+
+# IDEs
+.vscode/
+.idea/
+
+# Documentation and Temporary Files
+README.md
+DESIGN.md
+*.pdf
+pdf-text.txt
+req.txt
+
+# Tests and Coverage
+test/
+coverage/
+.nyc_output/
