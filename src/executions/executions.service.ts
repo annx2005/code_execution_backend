@@ -21,6 +21,23 @@ export class ExecutionsService {
   ) {}
 
   async run({ session_id, code, language }: RunPayload) {
+    // Idempotency: Prevent duplicate execution runs
+    // Check if there is an ongoing (QUEUED or RUNNING) execution for the same session.
+    // If so, return that existing execution instead of creating a new one.
+    const ongoingExecution = await this.executionRepository.findOne({
+      where: [
+        { session_id, status: ExecutionStatus.QUEUED },
+        { session_id, status: ExecutionStatus.RUNNING },
+      ],
+    });
+
+    if (ongoingExecution) {
+      return {
+        execution_id: ongoingExecution.id,
+        status: ongoingExecution.status,
+      };
+    }
+
     const execution = this.executionRepository.create({
       session_id,
       source_code: code,
@@ -29,12 +46,25 @@ export class ExecutionsService {
     });
     const savedExecution = await this.executionRepository.save(execution);
 
-    await this.queue.add('execute', {
-      execution_id: savedExecution.id,
-      session_id,
-      code,
-      language,
-    });
+    await this.queue.add(
+      'execute',
+      {
+        execution_id: savedExecution.id,
+        session_id,
+        code,
+        language,
+      },
+      {
+        jobId: savedExecution.id, // Idempotency metric for Redis Queue preventing duplicate jobs
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000, // 1s, 2s, 4s
+        },
+        removeOnComplete: true, // Auto-cleanup to save redis space
+        removeOnFail: false, // Keep in redis for Dead Letter inspection
+      },
+    );
 
     return {
       execution_id: savedExecution.id,

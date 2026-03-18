@@ -38,8 +38,9 @@ Executions spawn short-lived Alpine Linux containers (or optimized JDK/GCC image
 
 ## 3. Scalability Considerations
 
-- **Handling Concurrent Sessions**: Separation of API and Worker layers via BullMQ ensures the REST server remains responsive regardless of execution load.
-- **Horizontal Scaling**: Extra Worker nodes can be provisioned to consume jobs from the shared Redis queue as demand grows.
+- **Handling Concurrent Sessions (Non-blocking)**: Separation of API and Worker layers via BullMQ ensures the REST server remains responsive and handles high concurrency elegantly regardless of execution load, satisfying the non-blocking optional constraint. API explicitly offloads executions immediately.
+- **Controlled Worker Concurrency**: The worker logic prevents host overload by strictly limiting the active jobs per worker process via BullMQ concurrency settings (`concurrency: 5`).
+- **Horizontal Scaling**: Extra Worker nodes can be provisioned to consume jobs from the shared Redis queue as demand grows without any system modifications. 
 - **Queue Backlog**: BullMQ absorbs sudden spikes in activity. If the backlog grows, workers pull jobs systematically without overwhelming the host system.
 - **Potential Bottlenecks**: High-frequency patching via Autosave can thrash the PostgreSQL database. **Mitigation**: Implement a Write-Behind cache using Redis to aggregate snapshots before persisting to the DB.
 

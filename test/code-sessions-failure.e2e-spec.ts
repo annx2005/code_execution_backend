@@ -29,7 +29,7 @@ describe('CodeSessionsController - Failure Scenarios (e2e)', () => {
         .expect(400);
 
       expect(response.body.message).toContain(
-        'language must be one of the following values',
+        'language must be one of: python, java, cpp, javascript, c',
       );
     });
 
@@ -63,7 +63,7 @@ describe('CodeSessionsController - Failure Scenarios (e2e)', () => {
       const randomUUID = '00000000-0000-0000-0000-000000000000';
       const response = await request(app.getHttpServer())
         .patch(`/code-sessions/${randomUUID}`)
-        .send({ source_code: 'print("Hello")', language: 'PYTHON' })
+        .send({ source_code: 'print("Hello")', language: 'python' })
         .expect(404);
 
       expect(response.body.message).toContain(
@@ -89,7 +89,7 @@ describe('CodeSessionsController - Failure Scenarios (e2e)', () => {
       // TẠO 1 Session thật trước
       const sessionRes = await request(app.getHttpServer())
         .post('/code-sessions')
-        .send({ language: 'PYTHON', userId: 'user-123' })
+        .send({ language: 'python', userId: 'user-123' })
         .expect(201);
 
       const sessionId = sessionRes.body.session_id;

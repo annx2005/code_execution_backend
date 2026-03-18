@@ -11,6 +11,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d code_execution"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -20,6 +25,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend-dev:
     image: node:22-alpine
@@ -29,12 +39,18 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
-      - redis
-      - python-executor
-      - node-executor
-      - c-cpp-executor
-      - java-executor
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-executor:
+        condition: service_started
+      node-executor:
+        condition: service_started
+      c-cpp-executor:
+        condition: service_started
+      java-executor:
+        condition: service_started
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -57,12 +73,18 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
-      - redis
-      - python-executor
-      - node-executor
-      - c-cpp-executor
-      - java-executor
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-executor:
+        condition: service_started
+      node-executor:
+        condition: service_started
+      c-cpp-executor:
+        condition: service_started
+      java-executor:
+        condition: service_started
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
